@@ -1,0 +1,6 @@
+__pycache__/
+EGN_exemplars/
+lightning_logs/
+Results_EGN/
+spared
+wandb/
