@@ -7,7 +7,7 @@ from joblib import Parallel, delayed
 from torchvision import transforms
 import torch.nn.functional as F
 
-# Using spare library
+# Using spared library
 from spared.datasets import get_dataset
 from utils import *
 parser = get_main_parser()

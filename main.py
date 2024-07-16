@@ -13,7 +13,7 @@ from dataset import OrganizeDataset
 from utils import *
 from pytorch_lightning.callbacks import ModelCheckpoint
 
-# Using spare library
+# Using spared library
 from spared.datasets import get_dataset
 
 os.environ['WANDB_CONFIG_DIR'] = os.path.join(os.getcwd(), 'wandb') 

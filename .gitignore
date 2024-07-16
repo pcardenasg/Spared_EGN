@@ -4,3 +4,5 @@ lightning_logs/
 Results_EGN/
 spared
 wandb/
+processed_data
+PublicDatabase
