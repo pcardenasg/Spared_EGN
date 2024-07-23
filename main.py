@@ -15,6 +15,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 # Using spared library
 from spared.datasets import get_dataset
+from spared.denoising import spackle_cleaner
 
 os.environ['WANDB_CONFIG_DIR'] = os.path.join(os.getcwd(), 'wandb') 
 os.environ['WANDB_DIR'] = os.path.join(os.getcwd(), 'wandb')
@@ -23,6 +24,7 @@ os.environ['WANDB_CACHE_DIR'] = os.path.join(os.getcwd(), 'wandb')
 parser = get_main_parser()
 args = parser.parse_args()
 use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
 
 mean = [0.5476, 0.5218, 0.6881]
 std  = [0.2461, 0.2101, 0.1649]
@@ -35,6 +37,7 @@ max_min_dict = {'PCC-Gene': 'max', 'PCC-Patch': 'max', 'MSE': 'min', 'MAE': 'min
 
 def main(dataset, data_batch_size, learning_r, args):
     cwd = os.getcwd()
+    data_name = args.dataset
     
     def write(director, name, *string):
         string = [str(i) for i in string]
@@ -52,12 +55,19 @@ def main(dataset, data_batch_size, learning_r, args):
     print(f">>>> EGN Model run with {args.dataset} dataset <<<<")
     
     # Get dataset from the values defined in args
-    dataset = get_dataset(args.dataset)
+    dataset = get_dataset(args.dataset, visualize=False)
+    adata = dataset.adata
+
+    # Check that the selected prediction layer is found in the input adata
+    if (args.prediction_layer == "c_t_log1p") and (not args.prediction_layer in adata.layers):
+        adata, _  = spackle_cleaner(adata=adata, dataset=data_name, from_layer="c_d_log1p", to_layer="c_t_log1p", device=device)
+        # Replace current adata.h5ad file for the one with the completed data layer.
+        adata.write_h5ad(os.path.join(dataset.dataset_path, "adata.h5ad"))
 
     # Declare train and test datasets
-    train_split = dataset.adata[dataset.adata.obs['split']=='train']
-    val_split = dataset.adata[dataset.adata.obs['split']=='val']
-    test_split = dataset.adata[dataset.adata.obs['split']=='test']
+    train_split = adata[adata.obs['split']=='train']
+    val_split = adata[adata.obs['split']=='val']
+    test_split = adata[adata.obs['split']=='test']
 
     test_available = False if test_split.shape[0] == 0 else True
 
@@ -94,7 +104,7 @@ def main(dataset, data_batch_size, learning_r, args):
             drop_last = True
         )
 
-    filter_name = dataset.adata.var_names.tolist()
+    filter_name = adata.var_names.tolist()
 
     # TODO: set the parameters as parser flags for customizing options 
     # The following parameters are the ones suggested in the original EGN repository train command

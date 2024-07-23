@@ -18,7 +18,7 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 # Get dataset from the values defined in args
-dataset = get_dataset(args.dataset)
+dataset = get_dataset(args.dataset, visualize = False)
 
 # Declare train and test datasets
 train_dataloader = dataset.adata[dataset.adata.obs['split']=='train']
