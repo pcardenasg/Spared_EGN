@@ -1,5 +1,5 @@
 # Spared_EGN
-EGN state-of-the-art model adapted for [SPARED](https://arxiv.org/abs/2407.13027#) datasets.
+[EGN](https://github.com/Yan98/EGN) state-of-the-art model adapted for [SPARED](https://arxiv.org/abs/2407.13027#) datasets.
 
 ## Environment set up
 Create environment:
